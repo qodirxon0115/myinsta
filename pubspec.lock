@@ -121,6 +121,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.5"
+  custom_platform_device_id:
+    dependency: "direct main"
+    description:
+      name: custom_platform_device_id
+      sha256: "797b0f6ea7e48d61855845f9e1639860cd707d433dcc02c8721fda1eba397bd2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   device_info:
     dependency: transitive
     description:
@@ -536,14 +544,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.0"
-  platform_device_id:
-    dependency: "direct main"
-    description:
-      name: platform_device_id
-      sha256: "7a12ec84de4a823bb10eba2f0e1ad29e2365abba17790489a0d78029904f562e"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.1"
   platform_device_id_linux:
     dependency: transitive
     description:

@@ -1,6 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:myinsta/model/member_model.dart';
 import 'package:myinsta/pages/signIn_page.dart';
+import 'package:myinsta/services/db_service.dart';
 
 import '../services/auth_service.dart';
 import '../services/utils_service.dart';
@@ -22,7 +23,7 @@ class _SignUpPageState extends State<SignUpPage> {
   var passController = TextEditingController();
   var cPassController = TextEditingController();
 
-  _doSignUp() {
+  _doSignUp() async{
     String fulName = fullNameController.text.toString().trim();
     String email = emailController.text.toString().trim();
     String pass1 = passController.text.toString().trim();
@@ -36,12 +37,14 @@ class _SignUpPageState extends State<SignUpPage> {
     setState(() {
       isLoading = true;
     });
-    AuthService.signUpUser(fulName, email, pass1).then((value) => {
-      _responseSignUp(value!),
+    var response = await AuthService.signUpUser(fulName, email, pass1);
+    Member member = Member(fulName, email);
+    DBService.storeMember(member).then((value) => {
+      storeMemberToDB(member),
     });
   }
 
-  _responseSignUp(User firebaseUser) {
+  void storeMemberToDB(Member member) {
     setState(() {
       isLoading = false;
     });

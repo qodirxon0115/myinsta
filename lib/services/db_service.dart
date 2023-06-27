@@ -1,17 +1,17 @@
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:myinsta/services/auth_service.dart';
 import 'package:myinsta/services/utils_service.dart';
 
 import '../model/member_model.dart';
 
 class DBService {
-  static final fireStore = FirebaseStorage.instance;
+  static final fireStore = FirebaseFirestore.instance;
 
   static String folderUsers = "users";
 
   static Future storeMember(Member member) async {
     member.uid = AuthService.currentUserId();
-    Map<String, String> params = await Utils.deviceParames();
+    Map<String, String> params = await Utils.deviceParams();
 
     member.deviceId = params["deviceId"]!;
     member.deviceType = params["deviceType"]!;
@@ -22,14 +22,14 @@ class DBService {
         .set(member.toJson());
   }
 
-  static Future<Member> loadMember()async{
+  static Future<Member> loadMember() async {
     String uid = AuthService.currentUserId();
     var value = await fireStore.collection(folderUsers).doc(uid).get();
     Member member = Member.fromJson(value.data()!);
     return member;
   }
 
-  static Future<Member> updateMember(Member member) async{
+  static Future updateMember(Member member) async {
     String uid = AuthService.currentUserId();
     return fireStore.collection(folderUsers).doc(uid).update(member.toJson());
   }
@@ -53,6 +53,4 @@ class DBService {
 
     return members;
   }
-
-
 }

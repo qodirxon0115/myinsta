@@ -3,6 +3,9 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:myinsta/model/member_model.dart';
+import 'package:myinsta/services/db_service.dart';
+import 'package:myinsta/services/file_service.dart';
 
 import '../model/post_model.dart';
 import '../services/auth_service.dart';
@@ -19,7 +22,7 @@ class _ProfilePageState extends State<ProfilePage> {
   int axisCount = 2;
   List<Post> items = [];
   File? image;
-  String fullName = 'Qodirxon', email = 'kxan@gmail.com', imgUrl = '';
+  String fullName = '', email = '', imgUrl = '';
   int countPosts = 15, countFollowers = 300, countFollowing = 100;
   final ImagePicker picker = ImagePicker();
 
@@ -36,22 +39,42 @@ class _ProfilePageState extends State<ProfilePage> {
     items.add(Post(image_1!, 'Best photo '));
     items.add(Post(image_2!, 'Beautiful photo'));
     items.add(Post(image_3!, 'Hello World'));
+    apiLoadMember();
   }
 
   _imgFromGallery() async {
     final XFile? photo =
-    await picker.pickImage(source: ImageSource.gallery, imageQuality: 100);
+        await picker.pickImage(source: ImageSource.gallery, imageQuality: 100);
     setState(() {
       image = File(photo!.path);
     });
+    apiChangePhoto();
   }
 
   _imgFromCamera() async {
     final XFile? photo =
-    await picker.pickImage(source: ImageSource.camera, imageQuality: 100);
+        await picker.pickImage(source: ImageSource.camera, imageQuality: 100);
     setState(() {
       image = File(photo!.path);
     });
+    apiChangePhoto();
+  }
+
+  void apiChangePhoto() {
+    if (image == null) return;
+    setState(() {
+      isLoading = true;
+    });
+    FileService.uploadUserImage(image!).then((downloadUrl) => {
+          apiUpdateUser(downloadUrl),
+        });
+  }
+
+  apiUpdateUser(String downloadUrl) async {
+    Member member = await DBService.loadMember();
+    member.imgUrl = downloadUrl;
+    await DBService.updateMember(member);
+    apiLoadMember();
   }
 
   void _showPicker(context) {
@@ -84,6 +107,24 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           );
         });
+  }
+
+  void apiLoadMember() {
+    setState(() {
+      isLoading = true;
+    });
+    DBService.loadMember().then((value) => {
+          showMemberInfo(value),
+        });
+  }
+
+  void showMemberInfo(Member member) {
+    setState(() {
+      isLoading = false;
+      this.fullName = member.fullName;
+      this.email = member.email;
+      this.imgUrl = member.imgUrl;
+    });
   }
 
   @override
@@ -130,20 +171,20 @@ class _ProfilePageState extends State<ProfilePage> {
                               )),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(35),
-                            child: image == null
+                            child: imgUrl.isEmpty
                                 ? const Image(
-                              image: AssetImage(
-                                  "assets/images/ic_person.png"),
-                              width: 70,
-                              height: 70,
-                              fit: BoxFit.cover,
-                            )
-                                : Image.file(
-                              image!,
-                              width: 70,
-                              height: 70,
-                              fit: BoxFit.cover,
-                            ),
+                                    image: AssetImage(
+                                        "assets/images/ic_person.png"),
+                                    width: 70,
+                                    height: 70,
+                                    fit: BoxFit.cover,
+                                  )
+                                : Image.network(
+                                    imgUrl!,
+                                    width: 70,
+                                    height: 70,
+                                    fit: BoxFit.cover,
+                                  ),
                           ),
                         ),
                         Container(
@@ -305,8 +346,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   //myPosts
                   Expanded(
                     child: GridView.builder(
-                      gridDelegate:
-                      SliverGridDelegateWithFixedCrossAxisCount(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: axisCount),
                       itemCount: items.length,
                       itemBuilder: (ctx, index) {

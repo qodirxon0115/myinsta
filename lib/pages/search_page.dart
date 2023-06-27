@@ -1,6 +1,5 @@
-
-
 import 'package:flutter/material.dart';
+import 'package:myinsta/services/db_service.dart';
 
 import '../model/member_model.dart';
 
@@ -16,14 +15,26 @@ class _MySearchPageState extends State<MySearchPage> {
   var searchController = TextEditingController();
   List<Member> items = [];
 
+  void apiSearchMember(String keyword) {
+    setState(() {
+      isLoading = true;
+    });
+    DBService.searchMembers(keyword).then((users) => {
+          respSearchMembers(users),
+        });
+  }
+
+  void respSearchMembers(List<Member> members) {
+    setState(() {
+      items = members;
+      isLoading = false;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
-    items.add(Member("Qodirxon", "kxan@gmail.com"));
-    items.add(Member("Jahongir", "jahongir@gmail.com"));
-    items.add(Member("G'iyosbek", "giyosbek@gmail.com"));
-    items.add(Member("Habibatiy", "habibatiy@gmail.com"));
-    items.add(Member("Speaker", "speaker@gmail.com"));
+    apiSearchMember("");
   }
 
   @override
@@ -98,14 +109,20 @@ class _MySearchPageState extends State<MySearchPage> {
                   color: const Color.fromRGBO(193, 53, 132, 1),
                 )),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(22.5),
-              child: const Image(
-                image: AssetImage("assets/images/ic_person.png"),
-                width: 45,
-                height: 45,
-                fit: BoxFit.cover,
-              ),
-            ),
+                borderRadius: BorderRadius.circular(22.5),
+                child: member.imgUrl.isEmpty
+                    ? const Image(
+                        image: AssetImage("assets/images/ic_person.png"),
+                        width: 45,
+                        height: 45,
+                        fit: BoxFit.cover,
+                      )
+                    : Image.network(
+                        member.imgUrl,
+                        width: 45,
+                        height: 45,
+                        fit: BoxFit.cover,
+                      )),
           ),
           const SizedBox(
             width: 15,

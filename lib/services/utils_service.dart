@@ -1,8 +1,8 @@
 import 'dart:io';
 
+import 'package:custom_platform_device_id/platform_device_id.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:platform_device_id/platform_device_id.dart';
 
 class Utils {
   static void fireToast(String msg) {
@@ -16,7 +16,7 @@ class Utils {
         fontSize: 16.0);
   }
 
-  static Future<Map<String, String>> deviceParames() async {
+  static Future<Map<String, String>> deviceParams() async {
     Map<String, String> params = {};
     var getDeviceId = await PlatformDeviceId.getDeviceId;
     String fcmToken = "";
