@@ -23,18 +23,28 @@ class Utils {
 
     if (Platform.isIOS) {
       params.addAll({
-        'device_id': getDeviceId!,
-        'device_type': "I",
-        'device_token': fcmToken,
+        'deviceId': getDeviceId!,
+        'deviceType': "I",
+        'deviceToken': fcmToken,
       });
     } else {
       params.addAll({
-        'device_id': getDeviceId!,
-        'device_type': "A",
-        'device_token': fcmToken,
+        'deviceId': getDeviceId!,
+        'deviceType': "A",
+        'deviceToken': fcmToken,
       });
     }
 
     return params;
+  }
+
+  static String currentDate() {
+    DateTime now = DateTime.now();
+
+    String convertedDateTime =
+        "${now.year.toString()}-${
+        now.month.toString().padLeft(2, '0')}-${
+        now.day.toString().padLeft(2, '0')} ${now.hour.toString()}:${now.minute.toString()}";
+    return convertedDateTime;
   }
 }

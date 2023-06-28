@@ -26,20 +26,24 @@ class _ProfilePageState extends State<ProfilePage> {
   int countPosts = 15, countFollowers = 300, countFollowing = 100;
   final ImagePicker picker = ImagePicker();
 
-  String? image_1 =
-      'https://images.unsplash.com/photo-1686092854995-b735b32187a2';
-  String? image_2 =
-      'https://images.unsplash.com/photo-1684885783404-98ade0ab49c8';
-  String? image_3 =
-      'https://images.unsplash.com/photo-1685856898185-57eb303fd776';
-
   @override
   void initState() {
     super.initState();
-    items.add(Post(image_1!, 'Best photo '));
-    items.add(Post(image_2!, 'Beautiful photo'));
-    items.add(Post(image_3!, 'Hello World'));
     apiLoadMember();
+    apiLoadPosts();
+  }
+
+  apiLoadPosts(){
+    DBService.loadPosts().then((value) => {
+      resLoadPosts(value),
+    });
+  }
+
+  resLoadPosts(List<Post> posts){
+    setState(() {
+      items = posts;
+      countPosts = posts.length;
+    });
   }
 
   _imgFromGallery() async {
@@ -180,7 +184,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     fit: BoxFit.cover,
                                   )
                                 : Image.network(
-                                    imgUrl!,
+                                    imgUrl,
                                     width: 70,
                                     height: 70,
                                     fit: BoxFit.cover,
@@ -381,7 +385,7 @@ class _ProfilePageState extends State<ProfilePage> {
             height: 3,
           ),
           Text(
-            post.caption!,
+            post.caption,
             style: TextStyle(color: Colors.black87.withOpacity(0.7)),
             maxLines: 2,
           ),

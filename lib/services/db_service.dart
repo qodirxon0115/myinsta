@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:myinsta/model/post_model.dart';
 import 'package:myinsta/services/auth_service.dart';
 import 'package:myinsta/services/utils_service.dart';
 
@@ -8,6 +9,10 @@ class DBService {
   static final fireStore = FirebaseFirestore.instance;
 
   static String folderUsers = "users";
+  static String folderPost = "posts";
+  static String folderFeed = "feeds";
+
+  // Member Related
 
   static Future storeMember(Member member) async {
     member.uid = AuthService.currentUserId();
@@ -52,5 +57,73 @@ class DBService {
     });
 
     return members;
+  }
+
+  static Future<Post> storePost(Post post) async {
+    Member me = await loadMember();
+    post.uid = me.uid;
+    post.fullName = me.fullName;
+    post.imgUser = me.imgUrl;
+    post.date = Utils.currentDate();
+
+    String postId = fireStore
+        .collection(folderUsers)
+        .doc(me.uid)
+        .collection(folderPost)
+        .doc()
+        .id;
+    post.id = postId;
+
+    await fireStore
+        .collection(folderUsers)
+        .doc(me.uid)
+        .collection(folderPost)
+        .doc(postId)
+        .set(post.toJson());
+
+    return post;
+  }
+
+  static Future<Post> storeFeed(Post post) async {
+    String uid = AuthService.currentUserId();
+
+    await fireStore
+        .collection(folderUsers)
+        .doc(uid)
+        .collection(folderFeed)
+        .doc(post.id)
+        .set(post.toJson());
+    return post;
+  }
+
+  static Future<List<Post>> loadPosts() async {
+    List<Post> posts = [];
+    String uid = AuthService.currentUserId();
+    var querySnapshot = await fireStore
+        .collection(folderUsers)
+        .doc(uid)
+        .collection(folderPost)
+        .get();
+
+    querySnapshot.docs.forEach((result) {
+      posts.add(Post.fromJson(result.data()));
+    });
+    return posts;
+  }
+
+  static Future<List<Post>> loadFeeds() async {
+    List<Post> posts = [];
+    String uid = AuthService.currentUserId();
+    var querySnapshot = await fireStore
+        .collection(folderUsers)
+        .doc(uid)
+        .collection(folderFeed)
+        .get();
+
+    querySnapshot.docs.forEach((result) {
+      posts.add(Post.fromJson(result.data()));
+    });
+
+    return posts;
   }
 }

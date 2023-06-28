@@ -15,24 +15,24 @@ class Member {
 
   Member(this.fullName, this.email);
 
-  Member.fromJson(Map<String, dynamic> json)
+    Member.fromJson(Map<String, dynamic> json)
       : uid = json['uid'],
         fullName = json['fullName'],
         email = json['email'],
         password = json['password'],
-        imgUrl = json['img_url'],
-        deviceId = json['device_id'],
-        deviceType = json['device_type'],
-        deviceToken = json['device_token'];
+        imgUrl = json['imgUrl'],
+        deviceId = json['deviceId'],
+        deviceType = json['deviceType'],
+        deviceToken = json['deviceToken'];
 
   Map<String, dynamic> toJson() => {
     'uid': uid,
     'fullName': fullName,
     'email': email,
     'password': password,
-    'img_url': imgUrl,
-    'device_id': deviceId,
+    'imgUrl': imgUrl,
+    'deviceId': deviceId,
     'device_type': deviceType,
-    'device_token': deviceToken,
+    'deviceToken': deviceToken,
   };
 }
