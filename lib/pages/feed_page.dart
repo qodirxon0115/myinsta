@@ -40,6 +40,31 @@ class _MyFeedPageState extends State<MyFeedPage> {
     apiLoadFeeds();
   }
 
+
+  void apiPostLike(Post post) async{
+    setState(() {
+      isLoading = true;
+    });
+
+    await DBService.likePost(post, true);
+    setState(() {
+      isLoading = false;
+      post.liked = true;
+    });
+  }
+
+  void apiPostUnLike(Post post) async{
+    setState(() {
+      isLoading = true;
+    });
+
+    await DBService.likePost(post, false);
+    setState(() {
+      isLoading = false;
+      post.liked = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -156,10 +181,19 @@ class _MyFeedPageState extends State<MyFeedPage> {
           Row(
             children: [
               IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  EvaIcons.heartOutline,
+                onPressed: () {
+                  if(!post.liked){
+                    apiPostLike(post);
+                  }else{
+                    apiPostUnLike(post);
+                  }
+                },
+                icon: post.liked ? const Icon(
+                  EvaIcons.heart,
                   color: Colors.red,
+                ) : const Icon(
+                  EvaIcons.heartOutline,
+                  color: Colors.black,
                 ),
               ),
               IconButton(

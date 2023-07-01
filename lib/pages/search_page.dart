@@ -31,6 +31,30 @@ class _MySearchPageState extends State<MySearchPage> {
     });
   }
 
+  void apiFollowMember(Member someOne) async{
+    setState(() {
+      isLoading = true;
+    });
+    await DBService.followMember(someOne);
+    setState(() {
+      someOne.followed = true;
+      isLoading = false;
+    });
+    DBService.storePostsToMyFeed(someOne);
+  }
+
+  void apiUnFollowMember(Member someOne) async{
+    setState(() {
+      isLoading = true;
+    });
+    await DBService.unfollowMember(someOne);
+    setState(() {
+      someOne.followed = false;
+      isLoading = false;
+    });
+    DBService.removePostsFromMyFeed(someOne);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -149,15 +173,21 @@ class _MySearchPageState extends State<MySearchPage> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    if(member.followed){
+                      apiUnFollowMember(member);
+                    }else{
+                      apiFollowMember(member);
+                    }
+                  },
                   child: Container(
                     width: 100,
                     height: 30,
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(5),
                         border: Border.all(width: 1, color: Colors.grey)),
-                    child: const Center(
-                      child: Text('Follow'),
+                    child: Center(
+                      child: member.followed ? const Text('Following') : const Text('Follow'),
                     ),
                   ),
                 ),

@@ -128,6 +128,8 @@ class _ProfilePageState extends State<ProfilePage> {
       this.fullName = member.fullName;
       this.email = member.email;
       this.imgUrl = member.imgUrl;
+      this.countFollowing = member.followingCount;
+      this.countFollowers = member.followersCount;
     });
   }
 

@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:myinsta/services/db_service.dart';
 
 import '../model/post_model.dart';
 
@@ -17,19 +18,36 @@ class _LikesPageState extends State<LikesPage> {
   bool isLoading = false;
   List<Post> items = [];
 
-  String? image_1 =
-      'https://images.unsplash.com/photo-1686092854995-b735b32187a2';
-  String? image_2 =
-      'https://images.unsplash.com/photo-1684885783404-98ade0ab49c8';
-  String? image_3 =
-      'https://images.unsplash.com/photo-1685856898185-57eb303fd776';
+  void apiLoadLikes() {
+    setState(() {
+      isLoading = true;
+    });
+    DBService.loadLikes().then((value) => {
+          resLoadPost(value),
+        });
+  }
+
+  void resLoadPost(List<Post> posts) {
+    setState(() {
+      items = posts;
+      isLoading = false;
+    });
+  }
+
+  void apiPostUnLike(Post post){
+    setState(() {
+      isLoading = true;
+      post.liked = false;
+    });
+    DBService.likePost(post, false).then((value) => {
+      apiLoadLikes(),
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-    items.add(Post(image_1!, 'Best photo '));
-    items.add(Post(image_2!, 'Beautiful photo'));
-    items.add(Post(image_3!, 'Hello World'));
+    apiLoadLikes();
   }
 
   @override
@@ -65,8 +83,8 @@ class _LikesPageState extends State<LikesPage> {
                 }),
             isLoading
                 ? const Center(
-              child: CircularProgressIndicator(),
-            )
+                    child: CircularProgressIndicator(),
+                  )
                 : const SizedBox.shrink(),
           ],
         ));
@@ -89,28 +107,35 @@ class _LikesPageState extends State<LikesPage> {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(40),
-                      child: const Image(
-                        image: AssetImage("assets/images/ic_person.png"),
-                        width: 40,
-                        height: 40,
-                      ),
+                      child: post.imgUser.isEmpty
+                          ? Image(
+                              image: AssetImage("assets/images/ic_person.png"),
+                              width: 40,
+                              height: 40,
+                            )
+                          : Image.network(
+                              post.imgUser,
+                              width: 40,
+                              height: 40,
+                              fit: BoxFit.cover,
+                            ),
                     ),
                     const SizedBox(
                       width: 10,
                     ),
-                    const Column(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Esonov Qodirxon',
-                            style: TextStyle(
+                        Text(post.fullName,
+                            style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black)),
-                        SizedBox(
+                        const SizedBox(
                           height: 3,
                         ),
                         Text(
-                          '2023-06-11  19:40',
-                          style: TextStyle(fontWeight: FontWeight.normal),
+                          post.date,
+                          style: const TextStyle(fontWeight: FontWeight.normal),
                         ),
                       ],
                     )
@@ -143,10 +168,15 @@ class _LikesPageState extends State<LikesPage> {
           Row(
             children: [
               IconButton(
-                onPressed: () {},
-                icon: const Icon(
+                onPressed: () {
+                  apiPostUnLike(post);
+                },
+                icon: post.liked ? const Icon(
                   EvaIcons.heart,
                   color: Colors.red,
+                ) : const Icon(
+                  EvaIcons.heartOutline,
+                  color: Colors.black,
                 ),
               ),
               IconButton(
