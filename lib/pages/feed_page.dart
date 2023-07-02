@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:myinsta/services/db_service.dart';
+import 'package:myinsta/services/utils_service.dart';
 
 import '../model/post_model.dart';
 
@@ -63,6 +64,19 @@ class _MyFeedPageState extends State<MyFeedPage> {
       isLoading = false;
       post.liked = false;
     });
+  }
+
+  dialogRemovePost(Post post) async {
+    var result = await Utils.dialogCommon(
+        context, "MyInsta", "Do you want to delete this post?", false);
+    if(result != null && result){
+      setState(() {
+        isLoading = true;
+      });
+      DBService.removePost(post).then((value) => {
+        apiLoadFeeds(),
+      });
+    }
   }
 
   @override
@@ -154,10 +168,14 @@ class _MyFeedPageState extends State<MyFeedPage> {
                     )
                   ],
                 ),
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.more_horiz),
-                ),
+                post.mine
+                    ? IconButton(
+                        onPressed: () {
+                          dialogRemovePost(post);
+                        },
+                        icon: const Icon(Icons.more_horiz),
+                      )
+                    : SizedBox.shrink(),
               ],
             ),
           ),

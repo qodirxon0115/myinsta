@@ -9,6 +9,7 @@ import 'package:myinsta/services/file_service.dart';
 
 import '../model/post_model.dart';
 import '../services/auth_service.dart';
+import '../services/utils_service.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -44,6 +45,30 @@ class _ProfilePageState extends State<ProfilePage> {
       items = posts;
       countPosts = posts.length;
     });
+  }
+
+  dialogRemovePost(Post post) async {
+    var result = await Utils.dialogCommon(
+        context, "MyInsta", "Do you want to delete this post?", false);
+    if(result != null && result){
+      setState(() {
+        isLoading = true;
+      });
+      DBService.removePost(post).then((value) => {
+        apiLoadPosts(),
+      });
+    }
+  }
+
+  dialogLogout() async {
+    var result = await Utils.dialogCommon(
+        context, "MyInsta", "Do you want to logout?", false);
+    if(result != null && result){
+      setState(() {
+        isLoading = true;
+      });
+      AuthService.signOutUser(context);
+    }
   }
 
   _imgFromGallery() async {
@@ -146,7 +171,7 @@ class _ProfilePageState extends State<ProfilePage> {
           actions: [
             IconButton(
               onPressed: () {
-                AuthService.signOutUser(context);
+                dialogLogout();
               },
               icon: const Icon(Icons.exit_to_app),
               color: Colors.black,
@@ -368,30 +393,35 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget itemOfPosts(Post post) {
-    return Container(
-      margin: const EdgeInsets.all(5),
-      child: Column(
-        children: [
-          Expanded(
-            child: CachedNetworkImage(
-              width: double.infinity,
-              imageUrl: post.imgPost,
-              placeholder: (context, url) => const Center(
-                child: CircularProgressIndicator(),
+    return GestureDetector(
+      onLongPress: (){
+        dialogRemovePost(post);
+      },
+      child: Container(
+        margin: const EdgeInsets.all(5),
+        child: Column(
+          children: [
+            Expanded(
+              child: CachedNetworkImage(
+                width: double.infinity,
+                imageUrl: post.imgPost,
+                placeholder: (context, url) => const Center(
+                  child: CircularProgressIndicator(),
+                ),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+                fit: BoxFit.cover,
               ),
-              errorWidget: (context, url, error) => const Icon(Icons.error),
-              fit: BoxFit.cover,
             ),
-          ),
-          const SizedBox(
-            height: 3,
-          ),
-          Text(
-            post.caption,
-            style: TextStyle(color: Colors.black87.withOpacity(0.7)),
-            maxLines: 2,
-          ),
-        ],
+            const SizedBox(
+              height: 3,
+            ),
+            Text(
+              post.caption,
+              style: TextStyle(color: Colors.black87.withOpacity(0.7)),
+              maxLines: 2,
+            ),
+          ],
+        ),
       ),
     );
   }

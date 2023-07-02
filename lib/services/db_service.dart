@@ -138,7 +138,9 @@ class DBService {
         .get();
 
     querySnapshot.docs.forEach((result) {
-      posts.add(Post.fromJson(result.data()));
+      Post post = Post.fromJson(result.data());
+      if(post.uid == uid) post.mine = true;
+      posts.add(post);
     });
 
     return posts;

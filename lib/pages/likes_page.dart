@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:myinsta/services/db_service.dart';
 
 import '../model/post_model.dart';
+import '../services/utils_service.dart';
 
 class LikesPage extends StatefulWidget {
   final PageController? pageController;
@@ -42,6 +43,19 @@ class _LikesPageState extends State<LikesPage> {
     DBService.likePost(post, false).then((value) => {
       apiLoadLikes(),
     });
+  }
+
+  dialogRemovePost(Post post) async {
+    var result = await Utils.dialogCommon(
+        context, "MyInsta", "Do you want to delete this post?", false);
+    if(result != null && result){
+      setState(() {
+        isLoading = true;
+      });
+      DBService.removePost(post).then((value) => {
+        apiLoadLikes(),
+      });
+    }
   }
 
   @override
@@ -141,10 +155,14 @@ class _LikesPageState extends State<LikesPage> {
                     )
                   ],
                 ),
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.more_horiz),
-                ),
+                post.mine
+                    ? IconButton(
+                        onPressed: () {
+                          dialogRemovePost(post);
+                        },
+                        icon: const Icon(Icons.more_horiz),
+                      )
+                    : SizedBox.shrink(),
               ],
             ),
           ),
