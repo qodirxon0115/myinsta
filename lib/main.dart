@@ -4,6 +4,7 @@ import 'package:myinsta/pages/home_page.dart';
 import 'package:myinsta/pages/signIn_page.dart';
 import 'package:myinsta/pages/signUp_page.dart';
 import 'package:myinsta/pages/splash_page.dart';
+import 'package:myinsta/services/notif_service.dart';
 
 
 Future<void> main() async {
@@ -19,6 +20,8 @@ Future<void> main() async {
       ),
     name: "myinsta",
   );
+
+  await NotifService.init();
 
   runApp(const MyApp());
 }
